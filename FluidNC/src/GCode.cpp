@@ -593,6 +593,10 @@ Error gc_execute_line(char* line) {
                         gc_block.modal.io_control = IoControl::SetAnalogImmediate;
                         mg_word_bit               = ModalGroup::MM10;
                         break;
+                    case 100:
+                        gc_block.modal.io_control = IoControl::DigitalToggleImmediate;
+                        mg_word_bit               = ModalGroup::MM10;
+                        break;
                     default:
                         FAIL(Error::GcodeUnsupportedCommand);  // [Unsupported M command]
                 }
@@ -867,7 +871,7 @@ Error gc_execute_line(char* line) {
         clear_bitnum(value_words, GCodeWord::P);
     }
     if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync) ||
-        (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate)) {
+        (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate) || (gc_block.modal.io_control == IoControl::DigitalToggleImmediate)) {
         if (bitnum_is_false(value_words, GCodeWord::P)) {
             FAIL(Error::GcodeValueWordMissing);  // [P word missing]
         }
@@ -1470,12 +1474,15 @@ Error gc_execute_line(char* line) {
     pl_data->coolant = gc_state.modal.coolant;  // Set state for planner use.
     // turn on/off an i/o pin
     if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync) ||
-        (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate)) {
+        (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate) || (gc_block.modal.io_control == IoControl::DigitalToggleImmediate)) {
         if (gc_block.values.p < MaxUserDigitalPin) {
             if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync)) {
                 protocol_buffer_synchronize();
             }
             bool turnOn = gc_block.modal.io_control == IoControl::DigitalOnSync || gc_block.modal.io_control == IoControl::DigitalOnImmediate;
+            if((gc_block.modal.io_control == IoControl::DigitalToggleImmediate)){
+                turnOn=!config->_userOutputs->getDigital((int)gc_block.values.p);
+            }
             if (!config->_userOutputs->setDigital((int)gc_block.values.p, turnOn)) {
                 FAIL(Error::PParamMaxExceeded);
             }

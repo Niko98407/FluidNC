@@ -45,7 +45,10 @@ namespace Machine {
             setAnalogPercent(io_num, 0);
         }
     }
-
+    bool UserOutputs::getDigital(size_t io_num){
+        Pin& pin = _digitalOutput[io_num];
+        return pin.read();
+    }
     bool UserOutputs::setDigital(size_t io_num, bool isOn) {
         Pin& pin = _digitalOutput[io_num];
         if (pin.undefined()) {

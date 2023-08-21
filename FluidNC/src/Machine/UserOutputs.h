@@ -26,7 +26,8 @@ namespace Machine {
         void group(Configuration::HandlerBase& handler) override;
         bool setDigital(size_t io_num, bool isOn);
         bool setAnalogPercent(size_t io_num, float percent);
-
+        bool getDigital(size_t io_num);
+        
         ~UserOutputs();
     };
 }

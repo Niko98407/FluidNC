@@ -157,6 +157,7 @@ enum class IoControl : uint8_t {
     DigitalOffImmediate = 4,  // M65
     SetAnalogSync       = 5,  // M67
     SetAnalogImmediate  = 6,  // M68
+    DigitalToggleImmediate = 7, //M100
 };
 
 static const int MaxUserDigitalPin = 8;
